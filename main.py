@@ -88,9 +88,9 @@ if __name__ == "__main__":
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
     image_dir = "PoseEstimation/data/clips/img_example.jpg"
 
-    pose_estimator = PoseEstimation(checkpoints_pose, checkpoint_mae, checkpoint_dino)
-    pose_output = pose_estimator.pose_img(image_dir)
-    mae_embeddings = pose_estimator.mae(pose_output["cropped_images"])
-    dino_embeddings = np.squeeze(pose_estimator.dino(pose_output, 0))
+    runner = BackendRunner(checkpoints_pose, checkpoint_mae, checkpoint_dino)
+    pose_output = runner.pose_img(image_dir)
+    mae_embeddings = runner.mae(pose_output["cropped_images"])
+    dino_embeddings = np.squeeze(runner.dino(pose_output, 0))
 
-    sim = pose_estimator.similarity(dino_embeddings, dino_embeddings)
+    sim = runner.similarity(dino_embeddings, dino_embeddings)
