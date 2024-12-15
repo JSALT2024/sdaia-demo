@@ -74,9 +74,9 @@ class BackendRunner:
                 left_features = dino_predict(pose_output["cropped_left_hand"][i], hand_model, transform_dino, self.device)
                 lhand_embeddings.append(left_features)
             features = np.hstack((lhand_embeddings, rhand_embeddings))
-            return features
+            return np.squeeze(features)
         else:
-            return rhand_embeddings
+            return np.squeeze(rhand_embeddings)
 
     def similarity(self, emb_1, emb_2):
         sim = cosine_similarity(emb_1.reshape(1, -1), emb_2.reshape(1, -1))[0][0]
@@ -91,6 +91,6 @@ if __name__ == "__main__":
     runner = BackendRunner(checkpoints_pose, checkpoint_mae, checkpoint_dino)
     pose_output = runner.pose_img(image_dir)
     mae_embeddings = runner.mae(pose_output["cropped_images"])
-    dino_embeddings = np.squeeze(runner.dino(pose_output, 0))
+    dino_embeddings = runner.dino(pose_output, 0)
 
     sim = runner.similarity(dino_embeddings, dino_embeddings)
