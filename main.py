@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import cv2
 
-class PoseEstimation:
+class BackendRunner:
     def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino):
         self.checkpoint_pose = checkpoint_pose
         self.checkpoint_mae = checkpoint_mae
