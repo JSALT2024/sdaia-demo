@@ -1,3 +1,4 @@
+# Import necessary modules and functions for pose prediction, image processing, and machine learning
 from assets.predict_pose import predict_pose, create_mediapipe_models
 from assets.pose_utils import crop_pad_image
 from assets.crop_frames import crop_frame
@@ -8,39 +9,49 @@ import numpy as np
 import torch
 import cv2
 
+# Define the BackendRunner class to handle various backend operations
 class BackendRunner:
     def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino):
+        # Initialize with checkpoints for pose, MAE, and DINO models
         self.checkpoint_pose = checkpoint_pose
         self.checkpoint_mae = checkpoint_mae
         self.checkpoint_dino = checkpoint_dino
+        # Set the device to GPU if available, otherwise use CPU
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def load_video_frames(self, video_path):
+        # Load video frames from the specified path
         cap = cv2.VideoCapture(video_path)
         frames = []
 
+        # Check if the video file can be opened
         if not cap.isOpened():
             raise ValueError(f"Unable to open video file: {video_path}")
 
+        # Read frames from the video
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
 
+            # Convert frame from BGR to RGB
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frames.append(rgb_frame)
 
+        # Release the video capture object
         cap.release()
 
         return np.array(frames)
 
     def pose_video(self, video_dir):
+        # Predict pose for a video
         models = create_mediapipe_models(self.checkpoint_pose)
         video = self.load_video_frames(video_dir)
         prediction = predict_pose(video, models, 4)
         return prediction
 
     def pose_img(self, image_dir):
+        # Predict pose for a single image
         models = create_mediapipe_models(self.checkpoint_pose)
         image = cv2.imread(image_dir)
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -49,6 +60,7 @@ class BackendRunner:
         return prediction
 
     def mae(self, images):
+        # Generate MAE embeddings for a list of images
         arch = 'vit_base_patch16'
         model = create_mae_model(arch, self.checkpoint_mae)
         model = model.to(self.device)
@@ -60,6 +72,7 @@ class BackendRunner:
         return mae_embeddings
 
     def dino(self, pose_output, lhand=0):
+        # Generate DINO embeddings for pose output
         hand_model = create_dino_model(self.checkpoint_dino)
         hand_model.to(self.device)
 
@@ -79,18 +92,25 @@ class BackendRunner:
             return np.squeeze(rhand_embeddings)
 
     def similarity(self, emb_1, emb_2):
+        # Calculate cosine similarity between two embeddings
         sim = cosine_similarity(emb_1.reshape(1, -1), emb_2.reshape(1, -1))[0][0]
         return sim
 
 if __name__ == "__main__":
+    # Define paths to checkpoints and image directory
     checkpoints_pose = "checkpoints/pose"
     checkpoint_mae = "checkpoints/mae/16-07_21-52-12/checkpoint-440.pth"
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
     image_dir = "PoseEstimation/data/clips/img_example.jpg"
 
+    # Create an instance of BackendRunner
     runner = BackendRunner(checkpoints_pose, checkpoint_mae, checkpoint_dino)
+    # Perform pose prediction on an image
     pose_output = runner.pose_img(image_dir)
+    # Generate MAE embeddings from cropped images
     mae_embeddings = runner.mae(pose_output["cropped_images"])
+    # Generate DINO embeddings from pose output
     dino_embeddings = runner.dino(pose_output, 0)
 
+    # Calculate similarity between DINO embeddings
     sim = runner.similarity(dino_embeddings, dino_embeddings)
