@@ -24,9 +24,9 @@ example_images = gr.Markdown(
     """
 )
 
-example_image1 = gr.Image(value='gradio/A.jpg', type='numpy', label="Example Image of A", width=420, height=280)
-example_image2 = gr.Image(value='gradio/1.jpg', type='numpy', label="Example Image of 1", width=420, height=280)
-example_image3 = gr.Image(value='gradio/2.jpg', type='numpy', label="Example Image of 2", width=420, height=280)
+example_image1 = gr.Image(value='sdaia-demo/img/A.jpg', label="Example Image of A", width=420, height=280)
+example_image2 = gr.Image(value='sdaia-demo/img/1.jpg', label="Example Image of 1", width=420, height=280)
+example_image3 = gr.Image(value='sdaia-demo/img/2.jpg', label="Example Image of 2", width=420, height=280)
 
 # Combine the interface and example images
 app = gr.Blocks()
