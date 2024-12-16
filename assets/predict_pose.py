@@ -343,9 +343,14 @@ def predict_pose(video: List[np.ndarray], models: tuple, sign_space=4, yolo_sign
     num_predictions = []
     for idx, image in enumerate(results["images"]):
         bboxes, keypoints, confs = yolo_predict(image, yolo_model)
-        yolo_predictions.append([bboxes, keypoints, confs])
-        num_predictions.append(len(bboxes))
-        
+        if abs(len(bboxes)) > 1:
+            index = np.argmax(confs)
+            yolo_predictions.append([[bboxes[index]], [keypoints[index]], [confs[index]]])
+            num_predictions.append(len(bboxes[index]))
+        else:
+            yolo_predictions.append([bboxes, keypoints, confs])
+            num_predictions.append(len(bboxes))
+
     # no predictions -> add empty values and return
     if np.sum(num_predictions) == 0:
         _h, _w = results["images"][0].shape[:2]
