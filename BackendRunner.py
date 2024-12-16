@@ -76,18 +76,16 @@ class BackendRunner:
         return mae_embeddings
 
     def save_patch(self, patch, name):
-        
         normalized_path = os.path.normpath(name)
         filename = os.path.splitext(os.path.basename(normalized_path))[0]
         foldername = os.path.basename(os.path.dirname(normalized_path))
-
+        
         # Save the cropped right hand image to the work folder
         img_tosave = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
-        
         right_hand_image_path = f"patches/{filename}_{foldername}.jpg"
         cv2.imwrite(right_hand_image_path, img_tosave)
 
-    def dino(self, pose_output, filename, lhand=0):
+    def dino(self, pose_output, filename, lhand=0, save_patches=0):
         # Generate DINO embeddings for pose output
         self.model_dino_hand.to(self.device)
 
@@ -95,8 +93,8 @@ class BackendRunner:
         for i in range(len(pose_output["images"])):
             right_features = dino_predict(pose_output["cropped_right_hand"][i], self.model_dino_hand, transform_dino, self.device)
             rhand_embeddings.append(right_features)
-
-            self.save_patch(pose_output["cropped_right_hand"][i], filename)
+            if save_patches:
+                self.save_patch(pose_output["cropped_right_hand"][i], filename)
 
         if lhand:
             lhand_embeddings = []
@@ -129,7 +127,7 @@ if __name__ == "__main__":
     # Generate MAE embeddings from cropped images
     mae_embeddings = runner.mae(pose_output["cropped_images"])
     # Generate DINO embeddings from pose output
-    dino_embeddings = runner.dino(pose_output, image_dir, 0)
+    dino_embeddings = runner.dino(pose_output, image_dir, 0, save_patches=0)
     
     # Calculate similarity between embeddings
     sim = runner.similarity(dino_embeddings, dino_embeddings)
