@@ -54,28 +54,40 @@ class BackendRunner:
     def pose_video(self, video_dir):
         # Predict pose for a video
         video = self.load_video_frames(video_dir)
-        prediction = predict_pose(video, self.models_pose, 4)
+        prediction = predict_pose(video, self.models_pose, 4, yolo_sign_space=4)
         return prediction
 
     def pose_img(self, image_dir):
         # Predict pose for a single image
         image = cv2.imread(image_dir)
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = [rgb_image]
-        prediction = predict_pose(image, self.models_pose, 4)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = [image]
+        prediction = predict_pose(image, self.models_pose, 4, yolo_sign_space=4)
         return prediction
 
-    def mae(self, images):
+    def mae(self, pose_output):
         # Generate MAE embeddings for a list of images
         self.model_mae = self.model_mae.to(self.device)
 
         mae_embeddings = []
-        for image in images:
+        for image in pose_output["images"]:
             mae_embedding = mae_predict(image, self.model_mae, transform_mae, self.device)
             mae_embeddings.append(mae_embedding)
         return mae_embeddings
 
-    def dino(self, pose_output, lhand=0):
+    def save_patch(self, patch, name):
+        
+        normalized_path = os.path.normpath(name)
+        filename = os.path.splitext(os.path.basename(normalized_path))[0]
+        foldername = os.path.basename(os.path.dirname(normalized_path))
+
+        # Save the cropped right hand image to the work folder
+        img_tosave = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
+        
+        right_hand_image_path = f"patches/{filename}_{foldername}.jpg"
+        cv2.imwrite(right_hand_image_path, img_tosave)
+
+    def dino(self, pose_output, filename, lhand=0):
         # Generate DINO embeddings for pose output
         self.model_dino_hand.to(self.device)
 
@@ -83,6 +95,8 @@ class BackendRunner:
         for i in range(len(pose_output["images"])):
             right_features = dino_predict(pose_output["cropped_right_hand"][i], self.model_dino_hand, transform_dino, self.device)
             rhand_embeddings.append(right_features)
+
+            self.save_patch(pose_output["cropped_right_hand"][i], filename)
 
         if lhand:
             lhand_embeddings = []
@@ -96,7 +110,7 @@ class BackendRunner:
 
     def similarity(self, emb_1, emb_2):
         # Calculate cosine similarity between two embeddings
-        sim = cosine_similarity(emb_1.reshape(1, -1), emb_2.reshape(1, -1))[0][0]
+        sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
 if __name__ == "__main__":
@@ -104,7 +118,7 @@ if __name__ == "__main__":
     checkpoints_pose = "checkpoints/pose"
     checkpoint_mae = "checkpoints/mae/16-07_21-52-12/checkpoint-440.pth"
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
-    image_dir = "PoseEstimation/data/clips/img_example.jpg"
+    image_dir = "Numerals/Numerals_custom/numeral6_ivan.jpg"
 
     # Create an instance of BackendRunner
     runner = BackendRunner(checkpoints_pose, checkpoint_mae, checkpoint_dino)
@@ -115,7 +129,7 @@ if __name__ == "__main__":
     # Generate MAE embeddings from cropped images
     mae_embeddings = runner.mae(pose_output["cropped_images"])
     # Generate DINO embeddings from pose output
-    dino_embeddings = runner.dino(pose_output, 0)
+    dino_embeddings = runner.dino(pose_output, image_dir, 0)
     
     # Calculate similarity between embeddings
     sim = runner.similarity(dino_embeddings, dino_embeddings)
