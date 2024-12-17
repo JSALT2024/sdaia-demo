@@ -2,6 +2,8 @@ from BackendRunner import BackendRunner
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 import torch
 import os
 
