@@ -8,6 +8,7 @@ db_path = "sign_db.npz" # features database
 checkpoints_pose = "data/pose"
 checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
 handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path) # backend
+handler.load_models()
 print("Models loaded.")
 
 def process_image(input_image):

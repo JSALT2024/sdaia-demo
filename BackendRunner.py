@@ -12,7 +12,7 @@ import os
 
 # Define the BackendRunner class to handle various backend operations
 class BackendRunner:
-    def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino):
+    def __init__(self, checkpoint_pose, checkpoint_dino, checkpoint_mae = None):
         # Initialize with checkpoints for pose, MAE, and DINO models
         self.checkpoint_pose = checkpoint_pose
         self.checkpoint_mae = checkpoint_mae
@@ -49,8 +49,8 @@ class BackendRunner:
 
     def load_models(self):
         self.models_pose = create_mediapipe_models(self.checkpoint_pose)
-        arch = 'vit_base_patch16'
-        self.model_mae = create_mae_model(arch, self.checkpoint_mae)
+        #arch = 'vit_base_patch16'
+        #self.model_mae = create_mae_model(arch, self.checkpoint_mae)
         self.model_dino_hand = create_dino_model(self.checkpoint_dino)
 
     def pose_video(self, video_dir):
