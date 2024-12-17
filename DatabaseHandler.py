@@ -57,7 +57,8 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, db_files_path, image_dir, gen_db):
+    def predict(self, db_files_path, image_dir, gen_db=False):
+        print("Predicting...")
         if gen_db:
             self.gen_database(db_files_path, self.db_path)
         # Load the database
