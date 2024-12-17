@@ -1,9 +1,15 @@
 import cv2
 import gradio as gr
-from midend import get_prediction
+from DatabaseHandler import DatabaseHandler
+
+# Initialize handler globally
+db_path = "data/sign_db.npz" # features database
+checkpoints_pose = "data/pose"
+checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
+handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path) # backend
 
 def process_image(input_image):
-    prediction = get_prediction(input_image)
+    prediction = handler.predict(input_image, db_path)
     return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
 # Create the Gradio interface
