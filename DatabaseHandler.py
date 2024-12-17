@@ -10,7 +10,7 @@ import os
 import re
 
 class DatabaseHandler(BackendRunner):
-    def __init__(self, checkpoint_pose, checkpoint_dino, db_path, k=3):
+    def __init__(self, checkpoint_pose, checkpoint_dino, db_path, k=11):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.checkpoint_pose = checkpoint_pose
         self.checkpoint_dino = checkpoint_dino
@@ -39,7 +39,7 @@ class DatabaseHandler(BackendRunner):
         dino_embeddings = self.dino(pose_output, filepath, 0, save_patches=0)
         return dino_embeddings
 
-    def knn_search(self, database, query_vector, k=3):
+    def knn_search(self, database, query_vector):
         db_values = database.values()
         db_keys = database.keys()
         distances = []
@@ -49,7 +49,7 @@ class DatabaseHandler(BackendRunner):
         
         # Sort by distance and get the k smallest
         distances.sort(reverse=True)
-        nearest_distances, indices = zip(*distances[:k])
+        nearest_distances, indices = zip(*distances[:self.k])
         return np.array(nearest_distances), np.array(indices)
 
     def cosine_similarity(self, emb_1, emb_2):
@@ -57,15 +57,21 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, db_files_path, image_dir, gen_db, k):
+    def predict(self, db_files_path, image_dir, gen_db):
         if gen_db:
             self.gen_database(db_files_path, self.db_path)
         # Load the database
+        print("Loading database...")
         db = self.load_db(self.db_path)
+        print("Database loaded.")
         # Extract features from the query image
+        print("Extracting features from the query image...")
         query = self.get_features(image_dir)
+        print("Features extracted.")
         # Perform k-nearest neighbors search
-        distances, annotations = self.knn_search(db, query, k)
+        print("Performing k-nearest neighbors search...")
+        distances, annotations = self.knn_search(db, query)
+        print("k-nearest neighbors search done.")
         
         # Decide on the most common result
         numbers = [int(re.search(r'numeral(\d+)\.jpg', filename).group(1))

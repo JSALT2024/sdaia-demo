@@ -12,7 +12,9 @@ handler.load_models()
 print("Models loaded.")
 
 def process_image(input_image):
+    print("Processing image...")
     prediction = handler.predict(input_image)
+    print("Prediction done.")
     return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
 # Create the Gradio interface
