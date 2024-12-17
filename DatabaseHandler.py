@@ -32,8 +32,8 @@ class DatabaseHandler(BackendRunner):
         feature_database = {key: data[key].item() for key in data}
         return feature_database["arr_0"]
     
-    def get_features(self, filepath):
-        pose_output = self.pose_img(filepath)
+    def get_features(self, filepath, source):
+        pose_output = self.pose_img(filepath, source)
         dino_embeddings = self.dino(pose_output, filepath, 0, save_patches=0)
         return dino_embeddings
 
@@ -47,7 +47,7 @@ class DatabaseHandler(BackendRunner):
         
         # Sort by similarity and get the k largest
         similarities.sort(reverse=True, key=lambda x: x[0])
-        best_similarities, indices = zip(*similarities[:k])
+        best_similarities, indices = zip(*similarities[:self.k])
         return dict(zip(indices, best_similarities))
 
     def cosine_similarity(self, emb_1, emb_2):
@@ -67,38 +67,28 @@ class DatabaseHandler(BackendRunner):
         best_key = max((num for num in identical_percentages if any(num in k for k in similarities_dict)), key=lambda n: max((v for k, v in similarities_dict.items() if n in k), default=0), default=None)
         numbers = {best_key: numbers.pop(best_key), **numbers} if best_key else numbers
         
-        # Comparing number from filename to predicted one
-        match = re.search(r'numeral([1-9])\.jpg', image_dir)
-        if match:
-            number_gt = int(match.group(1))
-        
-        flag = None
-        if number_gt == int(list(numbers.keys())[0]):
-            flag = 1
-        else:
-            flag = 0
-        
-        return numbers, flag, best_key
+        return numbers, best_key
 
-    def predict(self, image_dir, db_files_path = None):
+    def predict(self, image_dir, source, db_files_path = None):
         # Load the database
         db = self.load_db(self.db_path)
         # Extract features from the query image
-        query = self.get_features(image_dir)
+        query = self.get_features(image_dir, source)
         # Perform k-nearest neighbors search
         similarities_dict = self.knn_search(db, query)
         
-        _, _, best_key = self.compute_results(image_dir, similarities_dict)
+        _, best_key = self.compute_results(image_dir, similarities_dict)
         
         return best_key
 
 if __name__ == "__main__":
-    checkpoints_pose = "checkpoints/pose"
-    checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
-    image_dir = "Numerals/Numerals_SaudiSL/o_numeral2.jpg"
-    db_path = "patches/sign_db.npz"
+    checkpoints_pose = "data/pose"
+    checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
+    image_dir = "img/numeral1.jpg"
+    db_path = "sign_db.npz"
     k=15
     
     handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path, k)
     handler.load_models()
-    prediction = handler.predict(image_dir, db_path)
+    prediction = handler.predict(image_dir)
+    print(prediction)

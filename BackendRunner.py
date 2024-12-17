@@ -59,9 +59,17 @@ class BackendRunner:
         prediction = predict_pose(video, self.models_pose, 4, yolo_sign_space=4)
         return prediction
 
-    def pose_img(self, image_dir):
+    def pose_img(self, image_dir, source):
         # Predict pose for a single image
+        # Convert the image from PNG to JPG if necessary
+        if image_dir.lower().endswith('.png'):
+            image = cv2.imread(image_dir)
+            new_image_dir = image_dir.replace('.png', '.jpg')
+            cv2.imwrite(new_image_dir, image)
+            image_dir = new_image_dir
         image = cv2.imread(image_dir)
+        if source == "webcam":
+            image = cv2.flip(image, 1)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = [image]
         prediction = predict_pose(image, self.models_pose, 4, yolo_sign_space=4)

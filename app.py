@@ -11,15 +11,26 @@ handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path) # backend
 handler.load_models()
 print("Models loaded.")
 
-def process_image(input_image):
+def process_image(input_image, source):
     print("Processing image...")
-    prediction = handler.predict(input_image)
+    if input_image == None:
+        return f"<div style='font-size: 300px; text-align: center;'>Error</div>"
+    prediction = handler.predict(input_image, source)
     print("Prediction done.")
     return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
+def process_input(input_image):
+    if "webcam" in input_image:
+        source = "webcam"
+        print("Webcam source detected.")
+    else:
+        source = "upload"
+        print("upload source detected.")
+    return process_image(input_image, source)
+
 # Create the Gradio interface
 iface = gr.Interface(
-    fn=process_image,  # The function to be called
+    fn=process_input,  # The function to be called
     inputs=[
         gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture"),
     ],
@@ -35,9 +46,9 @@ example_images = gr.Markdown(
     """
 )
 
-example_image1 = gr.Image(value='sdaia-demo/img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
-example_image2 = gr.Image(value='sdaia-demo/img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
-example_image3 = gr.Image(value='sdaia-demo/img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
+example_image1 = gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
+example_image2 = gr.Image(value='img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
+example_image3 = gr.Image(value='img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
 
 # Combine the interface and example images
 app = gr.Blocks()
