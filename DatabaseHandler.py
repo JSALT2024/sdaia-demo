@@ -6,6 +6,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import torch
 import os
+import re
 
 class DatabaseHandler(BackendRunner):
     def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino, db_path, k=3):
@@ -73,16 +74,14 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, db_files_path, db_path, image_dir, gen_db, k):
+    def predict(self, image_dir, db_path=None):
         self.load_models()
-        if gen_db:
-            self.gen_database(db_files_path, db_path)
         # Load the database
-        db = self.load_db(db_path)
+        db = self.load_db(db_path if db_path else self.db_path)
         # Extract features from the query image
         query = self.get_features(image_dir)
         # Perform k-nearest neighbors search
-        distances, annotations = self.knn_search(db, query, k)
+        distances, annotations = self.knn_search(db, query, k=9)
         
         # Decide on the most common result
         numbers = [int(re.search(r'numeral(\d+)\.jpg', filename).group(1)) 
@@ -102,9 +101,7 @@ if __name__ == "__main__":
     image_dir = "Numerals/Numerals_SaudiSL/numeral1.jpg"
     db_path = "patches/sign_db.npz"
     db_files_path = "Numerals/Numerals_SaudiSL"
-    k = 9
-    gen_db = 1
 
     # Execute
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path)
-    annotations = handler.predict(db_files_path, db_path, image_dir, gen_db, k)
+    annotations = handler.predict(image_dir, db_path)
