@@ -13,8 +13,8 @@ iface = gr.Interface(
         gr.Image(type="numpy", sources=["upload", "webcam"], label="Upload an image or take a picture"),
     ],
     outputs=gr.Textbox(label="Predicted Sign"),
-    title="Sign Language Recognition - Fingerspelling Alphanumerals in SAUDI SL",  # Title of the interface
-    description="This demo is a proof of concept for the fingerspelling recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid."
+    title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
+    description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid."
 )
 
 example_images = gr.Markdown(
