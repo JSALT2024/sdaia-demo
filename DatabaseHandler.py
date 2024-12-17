@@ -71,7 +71,7 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, db_files_path, db_path, image_dir, gen_db):
+    def predict(self, db_files_path, db_path, image_dir, gen_db, k):
         self.load_models()
         if gen_db:
             self.gen_database(db_files_path, db_path)
@@ -80,7 +80,7 @@ class DatabaseHandler(BackendRunner):
         # Extract features from the query image
         query = self.get_features(image_dir)
         # Perform k-nearest neighbors search
-        distances, annotations = self.knn_search(db, query)
+        distances, annotations = self.knn_search(db, query, k)
         
         # Decide on the most common result
         numbers = [int(re.search(r'numeral(\d+)\.jpg', filename).group(1)) 
