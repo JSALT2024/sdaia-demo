@@ -71,6 +71,20 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
+    def predict(self, db_files_path, db_path, image_dir, gen_db):
+        self.load_models()
+        if gen_db:
+            self.gen_database(db_files_path, db_path)
+        # Load the database
+        db = self.load_db(db_path)
+        # Extract features from the query image
+        query = self.get_features(image_dir)
+        # Perform k-nearest neighbors search
+        distances, annotations = self.knn_search(db, query)
+        
+        print(annotations)
+        return annotations
+
 if __name__ == "__main__":
     # Define paths to model checkpoints and image directories
     checkpoints_pose = "checkpoints/pose"
@@ -82,17 +96,6 @@ if __name__ == "__main__":
     k = 3
     gen_db = 1
 
-    # Create a DatabaseHandler object
+    # Execute
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path, k)
-    # Load models (method not shown in the provided code)
-    handler.load_models()
-    # Generate the database if specified
-    if gen_db:
-        handler.gen_database(db_files_path, db_path)
-    # Load the database
-    db = handler.load_db(db_path)
-    
-    # Extract features from the query image
-    query = handler.get_features(image_dir)
-    # Perform k-nearest neighbors search
-    distances, indices = handler.knn_search(db, query)
+    handler.predict(db_files_path, db_path, image_dir, gen_db)
