@@ -97,7 +97,7 @@ if __name__ == "__main__":
     checkpoints_pose = "checkpoints/pose"
     checkpoint_mae = "checkpoints/mae/16-07_21-52-12/checkpoint-440.pth"
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
-    image_dir = "Numerals/Numerals_SaudiSL/numeral4.jpg"
+    image_dir = "Numerals/Numerals_SaudiSL/numeral1.jpg"
     db_path = "patches/sign_db.npz"
     db_files_path = "Numerals/Numerals_SaudiSL"
     k = 9
@@ -105,4 +105,4 @@ if __name__ == "__main__":
 
     # Execute
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path)
-    annotations = handler.predict(db_files_path, db_path, image_dir, gen_db)
+    annotations = handler.predict(db_files_path, db_path, image_dir, gen_db, k)
