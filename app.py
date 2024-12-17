@@ -13,8 +13,8 @@ def process_image(input_image):
     
     from DatabaseHandler import DatabaseHandler
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path, k)
-    annotations = handler.predict(db_files_path, db_path, image_dir, gen_db)
-    return annotations
+    annotation = handler.predict(db_files_path, db_path, image_dir, gen_db)
+    return annotation
 
 # Create the Gradio interface
 iface = gr.Interface(
