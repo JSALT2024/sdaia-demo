@@ -2,14 +2,14 @@ import cv2
 import gradio as gr
 
 def process_image(input_image):
-    checkpoints_pose = "checkpoints/pose"
-    checkpoint_mae = "checkpoints/mae/16-07_21-52-12/checkpoint-440.pth"
-    checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
+    checkpoints_pose = "data/pose"
+    checkpoint_mae = "data/mae/16-07_21-52-12/checkpoint-440.pth"
+    checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
     image_dir = input_image
-    db_path = "sign_db.npz"
+    db_path = "data/sign_db.npz"
     db_files_path = "Numerals/Numerals_SaudiSL"
     k = 3
-    gen_db = 1
+    gen_db = 0
     
     from DatabaseHandler import DatabaseHandler
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path, k)
