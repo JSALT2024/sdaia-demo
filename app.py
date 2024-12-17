@@ -5,7 +5,7 @@ def process_image(input_image):
     checkpoints_pose = "checkpoints/pose"
     checkpoint_mae = "checkpoints/mae/16-07_21-52-12/checkpoint-440.pth"
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
-    image_dir = "Numerals/Numerals_SaudiSL/numeral4.jpg"
+    image_dir = input_image
     db_path = "patches/sign_db.npz"
     db_files_path = "Numerals/Numerals_SaudiSL"
     k = 3
