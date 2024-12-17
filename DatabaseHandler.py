@@ -104,5 +104,5 @@ if __name__ == "__main__":
     gen_db = 1
 
     # Execute
-    handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path, k)
+    handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path)
     annotations = handler.predict(db_files_path, db_path, image_dir, gen_db)
