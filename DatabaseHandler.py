@@ -89,7 +89,7 @@ class DatabaseHandler(BackendRunner):
         most_common_number = max((len(list(group)), num) for num, group in groupby(numbers))[1]
         
         print(annotations)
-        print(most_common_number)
+        print("Closest annotation: {}".format(most_common_number))
         return most_common_number
 
 if __name__ == "__main__":
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     image_dir = "Numerals/Numerals_SaudiSL/numeral4.jpg"
     db_path = "patches/sign_db.npz"
     db_files_path = "Numerals/Numerals_SaudiSL"
-    k = 3
+    k = 9
     gen_db = 1
 
     # Execute
