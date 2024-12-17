@@ -1,16 +1,14 @@
 from BackendRunner import BackendRunner
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
-from itertools import groupby
+from collections import Counter
 import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
 import torch
-import os
 import re
+import os
 
 class DatabaseHandler(BackendRunner):
-    def __init__(self, checkpoint_pose, checkpoint_dino, db_path, k=11):
+    def __init__(self, checkpoint_pose, checkpoint_dino, db_path, k=9):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.checkpoint_pose = checkpoint_pose
         self.checkpoint_dino = checkpoint_dino
@@ -42,73 +40,65 @@ class DatabaseHandler(BackendRunner):
     def knn_search(self, database, query_vector):
         db_values = database.values()
         db_keys = database.keys()
-        distances = []
+        similarities = []
         for idx, db_vector in enumerate(db_values):
             sim = self.cosine_similarity(db_vector, query_vector)
-            distances.append((sim, list(db_keys)[idx]))
+            similarities.append((sim, list(db_keys)[idx]))
         
-        # Sort by distance and get the k smallest
-        distances.sort(reverse=True)
-        nearest_distances, indices = zip(*distances[:self.k])
-        return np.array(nearest_distances), np.array(indices)
+        # Sort by similarity and get the k largest
+        similarities.sort(reverse=True, key=lambda x: x[0])
+        best_similarities, indices = zip(*similarities[:k])
+        return dict(zip(indices, best_similarities))
 
     def cosine_similarity(self, emb_1, emb_2):
         # Calculate cosine similarity between two embeddings
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, image_dir, db_files_path = None, gen_db=False):
-        print("Predicting...")
-        if gen_db:
-            self.gen_database(db_files_path, self.db_path)
+    def compute_results(self, image_dir, similarities_dict):
+        # create a dict with keys == annotations, values == percentage
+        total_keys = len(similarities_dict)
+        numbers = re.findall(r'\d+', ' '.join(similarities_dict.keys()))
+        numbers = {num: (count / total_keys) * 100 for num, count in Counter(numbers).items()}
+        
+        #If there are multiple best results with the same percentage, decide according to the cosine similarity value and reorder the dict
+        max_percentage = max(numbers.values())
+        identical_percentages = [k for k, v in numbers.items() if v == max_percentage]
+        best_key = max((num for num in identical_percentages if any(num in k for k in similarities_dict)), key=lambda n: max((v for k, v in similarities_dict.items() if n in k), default=0), default=None)
+        numbers = {best_key: numbers.pop(best_key), **numbers} if best_key else numbers
+        
+        # Comparing number from filename to predicted one
+        match = re.search(r'numeral([1-9])\.jpg', image_dir)
+        if match:
+            number_gt = int(match.group(1))
+        
+        flag = None
+        if number_gt == int(list(numbers.keys())[0]):
+            flag = 1
+        else:
+            flag = 0
+        
+        return numbers, flag, best_key
+
+    def predict(self, image_dir, db_files_path = None):
         # Load the database
-        print("Loading database...")
         db = self.load_db(self.db_path)
-        print("Database loaded.")
         # Extract features from the query image
-        print("Extracting features from the query image...")
         query = self.get_features(image_dir)
-        print("Features extracted.")
         # Perform k-nearest neighbors search
-        print("Performing k-nearest neighbors search...")
-        distances, annotations = self.knn_search(db, query)
-        print("k-nearest neighbors search done.")
+        similarities_dict = self.knn_search(db, query)
         
-        # Decide on the most common result
-        numbers = [int(re.search(r'numeral(\d+)\.jpg', filename).group(1))
-                for filename in annotations if re.search(r'numeral(\d+)\.jpg', filename)]
-        numbers.sort()
-        total_count = len(numbers)
-        number_percentage = {
-            num: (len(list(group)) / total_count) * 100
-            for num, group in groupby(numbers)
-        }
-        number_percentage = {key: f"{value:.2f}%" for key, value in number_percentage.items()}
+        _, _, best_key = self.compute_results(image_dir, similarities_dict)
         
-        # Write the output to a text file
-        with open("output.txt", "a") as file:
-            file.write(f"Image: {image_dir}\n")
-            file.write(str(number_percentage))
-            file.write("\n")
-        
-        return number_percentage
+        return best_key
 
 if __name__ == "__main__":
     checkpoints_pose = "checkpoints/pose"
     checkpoint_dino = "checkpoints/dino/hand/teacher_checkpoint.pth"
-    image_dir = "Numerals/Numerals_SaudiSL/numeral2.jpg"
+    image_dir = "Numerals/Numerals_SaudiSL/o_numeral2.jpg"
     db_path = "patches/sign_db.npz"
-    db_files_path = "Numerals/Numerals_new"
-    gen_db = 0
+    k=15
     
-    directory_path = "Numerals/Numerals_SaudiSL"
-    handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path)
+    handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path, k)
     handler.load_models()
-    
-    for k in range(1, 12):
-        with open("output.txt", "a") as file:
-            file.write(f"------K: {k}\n")
-        for filename in os.listdir(directory_path):
-            file_path = os.path.join(directory_path, filename)
-            if os.path.isfile(file_path) and filename.lower().endswith('.jpg'):
-                number = handler.predict(db_files_path, db_path, file_path, gen_db, k)
+    prediction = handler.predict(image_dir, db_path)
