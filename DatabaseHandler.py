@@ -82,8 +82,15 @@ class DatabaseHandler(BackendRunner):
         # Perform k-nearest neighbors search
         distances, annotations = self.knn_search(db, query)
         
+        # Decide on the most common result
+        numbers = [int(re.search(r'numeral(\d+)\.jpg', filename).group(1)) 
+                for filename in annotations if re.search(r'numeral(\d+)\.jpg', filename)]
+        numbers.sort()
+        most_common_number = max((len(list(group)), num) for num, group in groupby(numbers))[1]
+        
         print(annotations)
-        return annotations
+        print(most_common_number)
+        return most_common_number
 
 if __name__ == "__main__":
     # Define paths to model checkpoints and image directories
@@ -98,4 +105,4 @@ if __name__ == "__main__":
 
     # Execute
     handler = DatabaseHandler(checkpoints_pose, checkpoint_mae, checkpoint_dino, db_path, k)
-    handler.predict(db_files_path, db_path, image_dir, gen_db)
+    annotations = handler.predict(db_files_path, db_path, image_dir, gen_db)
