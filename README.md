@@ -15,8 +15,6 @@ git clone https://github.com/JSALT2024/sdaia-demo.git
  2. Install dependencies
 
 ```commandline
-import os
-os.chdir('sdaia-demo/')
 pip install -r requirements.txt
 ```
 
