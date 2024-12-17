@@ -3,8 +3,7 @@ import gradio as gr
 from midend import get_prediction
 
 def process_image(input_image):
-    #prediction = get_prediction(input_image)
-    prediction = 4
+    prediction = get_prediction(input_image)
     return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
 # Create the Gradio interface
@@ -25,9 +24,9 @@ example_images = gr.Markdown(
     """
 )
 
-example_image1 = gr.Image(value='sdaia-demo/img/A.jpg', label="Example Image of A", width=420, height=280)
-example_image2 = gr.Image(value='sdaia-demo/img/1.jpg', label="Example Image of 1", width=420, height=280)
-example_image3 = gr.Image(value='sdaia-demo/img/2.jpg', label="Example Image of 2", width=420, height=280)
+example_image1 = gr.Image(value='sdaia-demo/img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
+example_image2 = gr.Image(value='sdaia-demo/img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
+example_image3 = gr.Image(value='sdaia-demo/img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
 
 # Combine the interface and example images
 app = gr.Blocks()
