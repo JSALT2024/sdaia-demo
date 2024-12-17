@@ -4,7 +4,8 @@ from midend import get_prediction
 
 def process_image(input_image):
     prediction = get_prediction(input_image)
-    return prediction
+    #return prediction
+    return "4"
 
 # Create the Gradio interface
 iface = gr.Interface(
@@ -12,7 +13,7 @@ iface = gr.Interface(
     inputs=[
         gr.Image(type="numpy", sources=["upload", "webcam"], label="Upload an image or take a picture"),
     ],
-    outputs=gr.Textbox(label="Predicted Sign"),
+    outputs=gr.Textbox(label="Predicted Sign", scale=3, min_width=200, text_align="center", container=False),
     title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
     description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid."
 )
