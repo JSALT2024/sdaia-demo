@@ -21,7 +21,7 @@ def process_image(input_image):
 iface = gr.Interface(
     fn=process_image,  # The function to be called
     inputs=[
-        gr.Image(type="numpy", sources=["upload", "webcam"], label="Upload an image or take a picture"),
+        gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture"),
     ],
     outputs=gr.HTML(label="Predicted Sign"), 
     title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
