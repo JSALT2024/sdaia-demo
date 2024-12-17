@@ -6,7 +6,9 @@ from assets.predict_dino import *
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import torch
+import sys
 import cv2
+import os
 
 # Define the BackendRunner class to handle various backend operations
 class BackendRunner:
@@ -79,13 +81,14 @@ class BackendRunner:
         normalized_path = os.path.normpath(name)
         filename = os.path.splitext(os.path.basename(normalized_path))[0]
         foldername = os.path.basename(os.path.dirname(normalized_path))
-        
+
         # Save the cropped right hand image to the work folder
         img_tosave = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
+        
         right_hand_image_path = f"patches/{filename}_{foldername}.jpg"
         cv2.imwrite(right_hand_image_path, img_tosave)
 
-    def dino(self, pose_output, filename, lhand=0, save_patches=0):
+    def dino(self, pose_output, filename, lhand=0, save_patches = 0):
         # Generate DINO embeddings for pose output
         self.model_dino_hand.to(self.device)
 
@@ -106,11 +109,6 @@ class BackendRunner:
         else:
             return np.squeeze(rhand_embeddings)
 
-    def similarity(self, emb_1, emb_2):
-        # Calculate cosine similarity between two embeddings
-        sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
-        return sim
-
 if __name__ == "__main__":
     # Define paths to checkpoints and image input
     checkpoints_pose = "checkpoints/pose"
@@ -127,7 +125,7 @@ if __name__ == "__main__":
     # Generate MAE embeddings from cropped images
     mae_embeddings = runner.mae(pose_output["cropped_images"])
     # Generate DINO embeddings from pose output
-    dino_embeddings = runner.dino(pose_output, image_dir, 0, save_patches=0)
+    dino_embeddings = runner.dino(pose_output, image_dir, 0)
     
     # Calculate similarity between embeddings
     sim = runner.similarity(dino_embeddings, dino_embeddings)
