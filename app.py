@@ -3,10 +3,12 @@ import gradio as gr
 from DatabaseHandler import DatabaseHandler
 
 # Initialize handler globally
-db_path = "data/sign_db.npz" # features database
+print("Initializing Gradio, loading models...")
+db_path = "sign_db.npz" # features database
 checkpoints_pose = "data/pose"
 checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
 handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path) # backend
+print("Models loaded.")
 
 def process_image(input_image):
     prediction = handler.predict(input_image)
