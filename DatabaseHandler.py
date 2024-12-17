@@ -1,6 +1,7 @@
 from BackendRunner import BackendRunner
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
+from itertools import groupby
 import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
@@ -9,7 +10,7 @@ import os
 import re
 
 class DatabaseHandler(BackendRunner):
-    def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino, db_path, k=3):
+    def __init__(self, checkpoint_pose, checkpoint_mae, checkpoint_dino, db_path):
         # Initialize the device to use GPU if available, otherwise CPU
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         # Store checkpoint paths for different models
@@ -54,7 +55,7 @@ class DatabaseHandler(BackendRunner):
         dino_embeddings = self.dino(pose_output, filepath, 0, save_patches=0)
         return dino_embeddings
 
-    def knn_search(self, database, query_vector, k=3):
+    def knn_search(self, database, query_vector, k=9):
         # Perform k-nearest neighbors search in the database
         db_values = database.values()
         db_keys = database.keys()
