@@ -9,7 +9,7 @@ checkpoint_dino = "data/dino/hand/teacher_checkpoint.pth"
 handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path) # backend
 
 def process_image(input_image):
-    prediction = handler.predict(input_image, db_path)
+    prediction = handler.predict(input_image)
     return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
 # Create the Gradio interface

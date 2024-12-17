@@ -57,11 +57,11 @@ class DatabaseHandler(BackendRunner):
         sim = cosine_similarity(np.squeeze(emb_1).reshape(1, -1), np.squeeze(emb_2).reshape(1, -1))[0][0]
         return sim
 
-    def predict(self, db_files_path, db_path, image_dir, gen_db, k):
+    def predict(self, db_files_path, image_dir, gen_db, k):
         if gen_db:
-            self.gen_database(db_files_path, db_path)
+            self.gen_database(db_files_path, self.db_path)
         # Load the database
-        db = self.load_db(db_path)
+        db = self.load_db(self.db_path)
         # Extract features from the query image
         query = self.get_features(image_dir)
         # Perform k-nearest neighbors search
