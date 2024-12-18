@@ -17,6 +17,9 @@ def process_image(input_image, source):
         return f"<div style='font-size: 300px; text-align: center;'>Error</div>", None
     else:
         prediction, detected_hand = handler.predict(input_image, source)
+        if detected_hand is not None:
+            height, width = detected_hand.shape[:2]
+            detected_hand = cv2.resize(detected_hand, (width//2, height//2))
         print("Prediction done.")
         return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>", detected_hand
 
@@ -38,7 +41,7 @@ iface = gr.Interface(
     ],
     outputs=[
         gr.HTML(label="Predicted Sign"),
-        gr.Image(label="Detected Hand", type="numpy", width=210, height=140),
+        gr.Image(label="Detected Hand", type="numpy"),
     ],
     title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
     description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid.\n\n" + 
