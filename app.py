@@ -18,12 +18,6 @@ def process_image(input_image, source):
         return f"<div style='font-size: 100px; text-align: center;'>Error</div>", None, None
     else:
         prediction, detected_hand, best_match = handler.predict(input_image, source)
-        #if detected_hand is not None:
-        #    height, width = detected_hand.shape[:2]
-        #    detected_hand = cv2.resize(detected_hand, (width//2, height//2))
-        #if best_match is not None:
-        #    height, width = best_match.shape[:2]
-        #    best_match = cv2.resize(best_match, (width//2, height//2))
         print("Prediction done.")
         return f"<div style='font-size: 100px; text-align: center;'>{prediction}</div>", detected_hand, best_match
 
@@ -37,55 +31,84 @@ def process_input(input_image):
     
     return process_image(input_image, source)
 
-# Create the Gradio interface
 iface = gr.Interface(
-    fn=process_input,  # The function to be called
-    inputs=[
-        gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture"),
-    ],
+    fn=process_input,
+    inputs=[gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture")],
     outputs=[
         gr.HTML(label="Predicted Sign"),
-        gr.Image(label="Detected Hand", type="numpy", width=200, height=200), # Different sized input gives different sized patches
+        gr.Image(label="Detected Hand", type="numpy", width=200, height=200),
         gr.Image(label="Best Match", type="numpy", width=200, height=200),
-    ],
-    title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
-    description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid.\n\n" + 
-    "You can try signing numerals 1-9 with your right hand in Saudi Sign language."
+    ]
 )
 
-demo = gr.Blocks()
+demo = gr.Blocks(css="""
+    .tutorial-image {
+        width: 7% !important;  /* Ensures images are small enough to fit in one line */
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+    .tutorial-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start; /* Align items to the start */
+        width: 100%;
+        overflow-x: auto; /* Allow horizontal scrolling if needed */
+        padding: 0;
+        gap: 0; /* Remove spacing between items */
+    }
+    .tutorial-row .label {
+        font-size: 12px !important;
+        text-align: center;
+        margin-top: 2px;
+    }
+""")
 
 with demo:
-    iface.render()
-    
-    gr.Markdown(
-        """
-        ## Tutorial: Saudi Sign Language Numerals 1-9
-        Below are reference images showing how to sign each numeral:
-        """
-    )
-    
-    with gr.Row():
-        for i in range(1, 10):
-            gr.Image(
-                value=f'img/tutorial/{i}.JPG',
-                label=f"Numeral {i}",
-                show_label=True,
-                width=20,
-                height=100
-            )
-    
-    gr.Markdown(
-        """
-        ## Example input
-        Here are three example input images, you can drag and drop them into the image input window:
-        """
-    )
-    
-    with gr.Row():
-        example_image1 = gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
-        example_image2 = gr.Image(value='img/numeral2.jpg', label="Example Image of 2", width=420, height=280)
-        example_image3 = gr.Image(value='img/numeral3.jpg', label="Example Image of 3", width=420, height=280)
+    try:
+        # Title and description
+        gr.Markdown("<h1 style='text-align: center; font-size: 2.5em'>Sign Language Recognition - Alphanumerals in SAUDI SL</h1>")
+        gr.Markdown(
+            "This demo is a proof of concept for the recognition system of the SAUDI SL. "
+            "It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset "
+            "from Mohammad Alghannami and Maram Aljuaid.\n\n"
+            "You can try signing numerals 1-9 with your right hand in Saudi Sign language as shown below:"
+        )
+
+        with gr.Row(elem_classes="tutorial-row"):
+            for i in range(1, 10):
+                gr.Image(
+                    value=f'img/tutorial_cropped/{i}.JPG',
+                    label=str(i),
+                    show_label=True,
+                    container=True,
+                    elem_id=f"tutorial-img-{i}",
+                    elem_classes="tutorial-image"
+                )
+
+        iface.render()
+
+        gr.Markdown(
+            """
+            ## Example input
+            Here are three example input images, you can drag and drop them into the image input window:
+            """
+        )
+        
+        with gr.Row():
+            gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
+            gr.Image(value='img/numeral2.jpg', label="Example Image of 2", width=420, height=280)
+            gr.Image(value='img/numeral3.jpg', label="Example Image of 3", width=420, height=280)
+                
+    except Exception as e:
+        print(f"Error during interface creation: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    demo.launch()
+    try:
+        demo.launch()
+    except Exception as e:
+        print(f"Error during launch: {str(e)}")
+        raise
