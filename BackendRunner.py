@@ -59,7 +59,7 @@ class BackendRunner:
         prediction = predict_pose(video, self.models_pose, 4, yolo_sign_space=4)
         return prediction
 
-    def pose_img(self, image_dir, source):
+    def pose_img(self, image_dir, source, retrieve=False):
         # Predict pose for a single image
         # Convert the image from PNG to JPG if necessary
         if image_dir.lower().endswith('.png'):
@@ -68,7 +68,7 @@ class BackendRunner:
             cv2.imwrite(new_image_dir, image)
             image_dir = new_image_dir
         image = cv2.imread(image_dir)
-        if source == "webcam":
+        if source == "webcam" and retrieve == False:
             image = cv2.flip(image, 1)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = [image]
@@ -91,10 +91,10 @@ class BackendRunner:
         foldername = os.path.basename(os.path.dirname(normalized_path))
 
         # Save the cropped right hand image to the work folder
-        img_tosave = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
+        #img_tosave = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
         
         right_hand_image_path = f"patches/{filename}_{foldername}.jpg"
-        cv2.imwrite(right_hand_image_path, img_tosave)
+        cv2.imwrite(right_hand_image_path, patch)
 
     def dino(self, pose_output, filename, lhand=0, save_patches = 0):
         # Generate DINO embeddings for pose output
@@ -102,7 +102,8 @@ class BackendRunner:
 
         rhand_embeddings = []
         for i in range(len(pose_output["images"])):
-            right_features = dino_predict(pose_output["cropped_right_hand"][i], self.model_dino_hand, transform_dino, self.device)
+            dino_input = cv2.cvtColor(pose_output["cropped_right_hand"][i], cv2.COLOR_BGR2RGB)
+            right_features = dino_predict(dino_input, self.model_dino_hand, transform_dino, self.device)
             rhand_embeddings.append(right_features)
             if save_patches:
                 self.save_patch(pose_output["cropped_right_hand"][i], filename)
