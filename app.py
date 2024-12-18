@@ -53,28 +53,39 @@ iface = gr.Interface(
     "You can try signing numerals 1-9 with your right hand in Saudi Sign language."
 )
 
-example_images = gr.Markdown(
-    """
-    ## Example input
-    Here are three example input images, you can drag and drop them into the image input window:
-    """
-)
+demo = gr.Blocks()
 
-example_image1 = gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
-example_image2 = gr.Image(value='img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
-example_image3 = gr.Image(value='img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
-
-# Combine the interface and example images
-app = gr.Blocks()
-
-with app:
+with demo:
     iface.render()
-    example_images.render()
+    
+    gr.Markdown(
+        """
+        ## Tutorial: Saudi Sign Language Numerals 1-9
+        Below are reference images showing how to sign each numeral:
+        """
+    )
+    
     with gr.Row():
-        example_image1.render()
-        example_image2.render()
-        example_image3.render()
+        for i in range(1, 10):
+            gr.Image(
+                value=f'img/tutorial/{i}.JPG',
+                label=f"Numeral {i}",
+                show_label=True,
+                width=20,
+                height=100
+            )
+    
+    gr.Markdown(
+        """
+        ## Example input
+        Here are three example input images, you can drag and drop them into the image input window:
+        """
+    )
+    
+    with gr.Row():
+        example_image1 = gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
+        example_image2 = gr.Image(value='img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
+        example_image3 = gr.Image(value='img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
 
-# Launch the interface
 if __name__ == "__main__":
-    app.launch()
+    demo.launch()
