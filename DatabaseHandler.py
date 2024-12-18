@@ -35,7 +35,7 @@ class DatabaseHandler(BackendRunner):
     def get_features(self, filepath, source):
         pose_output = self.pose_img(filepath, source)
         dino_embeddings = self.dino(pose_output, filepath, 0, save_patches=0)
-        predicted_hand = prediction["cropped_right_hand"][0]
+        predicted_hand = pose_output["cropped_right_hand"][0]
         return dino_embeddings, predicted_hand
 
     def knn_search(self, database, query_vector):
