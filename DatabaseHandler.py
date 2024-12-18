@@ -35,7 +35,8 @@ class DatabaseHandler(BackendRunner):
     def get_features(self, filepath, source):
         pose_output = self.pose_img(filepath, source)
         dino_embeddings = self.dino(pose_output, filepath, 0, save_patches=0)
-        return dino_embeddings
+        predicted_hand = pose_output["cropped_right_hand"][0]
+        return dino_embeddings, predicted_hand
 
     def knn_search(self, database, query_vector):
         db_values = database.values()
@@ -73,7 +74,7 @@ class DatabaseHandler(BackendRunner):
         # Load the database
         db = self.load_db(self.db_path)
         # Extract features from the query image
-        query = self.get_features(image_dir, source)
+        query, predicted_hand = self.get_features(image_dir, source)
         # Perform k-nearest neighbors search
         similarities_dict = self.knn_search(db, query)
         if any(value > 0.9 for value in similarities_dict.values()):
@@ -82,7 +83,7 @@ class DatabaseHandler(BackendRunner):
         else: 
             _, best_key = self.compute_results(image_dir, similarities_dict)
         
-        return best_key
+        return best_key, predicted_hand
 
 if __name__ == "__main__":
     checkpoints_pose = "data/pose"
