@@ -78,6 +78,7 @@ class DatabaseHandler(BackendRunner):
         similarities_dict = self.knn_search(db, query)
         if any(value > 0.9 for value in similarities_dict.values()):
             best_key = max(similarities_dict, key=similarities_dict.get)
+            best_key = int(re.findall(r'\d+', ' '.join(best_key))[0])
         else: 
             _, best_key = self.compute_results(image_dir, similarities_dict)
         
