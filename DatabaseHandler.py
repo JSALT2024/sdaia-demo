@@ -76,8 +76,10 @@ class DatabaseHandler(BackendRunner):
         query = self.get_features(image_dir, source)
         # Perform k-nearest neighbors search
         similarities_dict = self.knn_search(db, query)
-        
-        _, best_key = self.compute_results(image_dir, similarities_dict)
+        if any(value > 0.9 for value in similarities_dict.values()):
+            best_key = max(similarities_dict, key=similarities_dict.get)
+        else: 
+            _, best_key = self.compute_results(image_dir, similarities_dict)
         
         return best_key
 
