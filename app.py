@@ -84,8 +84,8 @@ with demo:
     
     with gr.Row():
         example_image1 = gr.Image(value='img/numeral1.jpg', label="Example Image of 1", width=420, height=280)
-        example_image2 = gr.Image(value='img/numeral5.jpg', label="Example Image of 5", width=420, height=280)
-        example_image3 = gr.Image(value='img/numeral8.jpg', label="Example Image of 8", width=420, height=280)
+        example_image2 = gr.Image(value='img/numeral2.jpg', label="Example Image of 2", width=420, height=280)
+        example_image3 = gr.Image(value='img/numeral3.jpg', label="Example Image of 3", width=420, height=280)
 
 if __name__ == "__main__":
     demo.launch()
