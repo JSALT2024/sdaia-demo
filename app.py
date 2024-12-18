@@ -13,19 +13,21 @@ print("Models loaded.")
 
 def process_image(input_image, source):
     print("Processing image...")
-    if input_image == None:
+    if source == None:
         return f"<div style='font-size: 300px; text-align: center;'>Error</div>"
-    prediction = handler.predict(input_image, source)
-    print("Prediction done.")
-    return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
+    else:
+        prediction = handler.predict(input_image, source)
+        print("Prediction done.")
+        return f"<div style='font-size: 300px; text-align: center;'>{prediction}</div>"
 
 def process_input(input_image):
-    if "webcam" in input_image:
+    if input_image == None:
+        source = None
+    elif "webcam" in input_image:
         source = "webcam"
-        print("Webcam source detected.")
     else:
         source = "upload"
-        print("upload source detected.")
+    
     return process_image(input_image, source)
 
 # Create the Gradio interface
