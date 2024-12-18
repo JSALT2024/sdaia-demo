@@ -4,7 +4,9 @@
 
 This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid.
 
-## How to run
+## Find the demo at [HuggingFace spaces](https://huggingface.co/spaces/VaJavorek/sdaia-demo)
+
+## How to run locally
 
  1. Clone repository
  ```commandline
@@ -20,7 +22,7 @@ pip install -r requirements.txt
 
  3. Run the demo
  ```commandline
-python saudiSLGradio.py
+python app.py
 ```
  4. Open http://127.0.0.1:7860/
 
