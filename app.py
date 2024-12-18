@@ -38,7 +38,8 @@ iface = gr.Interface(
     ],
     outputs=gr.HTML(label="Predicted Sign"), 
     title="Sign Language Recognition - Alphanumerals in SAUDI SL",  # Title of the interface
-    description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid."
+    description="This demo is a proof of concept for the recognition system of the SAUDI SL. It uses MediaPipe and DINO in the backend, trained on the SAUDI SL dataset from Mohammad Alghannami and Maram Aljuaid.\n\n" + 
+    "You can try signing numerals 1-9 with your right hand in Saudi Sign language."
 )
 
 example_images = gr.Markdown(
