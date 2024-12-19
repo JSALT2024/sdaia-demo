@@ -80,7 +80,7 @@ with demo:
         with gr.Row(elem_classes="tutorial-row"):
             for i in range(1, 10):
                 gr.Image(
-                    value=f'img/tutorial_cropped/{i}.JPG',
+                    value=f'img/tutorial/{i}.JPG',
                     label=str(i),
                     show_label=True,
                     container=True,
