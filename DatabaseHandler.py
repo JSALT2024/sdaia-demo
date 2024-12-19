@@ -93,16 +93,15 @@ class DatabaseHandler(BackendRunner):
         if any(value > 0.9 for value in similarities_dict.values()):
             best_key_name = max(similarities_dict, key=similarities_dict.get)
             best_key = int(re.findall(r'(?<=numeral)\d+', best_key_name)[0])
-            best_match = self.retrieve_best_match_patch(best_key_name, source)
+            #best_match = self.retrieve_best_match_patch(best_key_name, source)
         else:
             _, best_key_name = self.compute_results(image_dir, similarities_dict)
             if best_key_name == None:
                 print("Best key name is None.")
             best_key = int(re.findall(r'(?<=numeral)\d+', best_key_name)[0])
-            best_match = self.retrieve_best_match_patch(best_key_name, source)
-        
-        print(best_key_name)
-        return best_key, predicted_hand, best_match
+            #best_match = self.retrieve_best_match_patch(best_key_name, source)
+
+        return best_key, predicted_hand#, best_match
 
 if __name__ == "__main__":
     checkpoints_pose = "data/pose"
