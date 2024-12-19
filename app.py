@@ -22,11 +22,11 @@ def process_image(input_image):
     
     print("Processing image...")
     if source == None:
-        return f"<div style='font-size: 100px; text-align: center;'>Error</div>", None, None
+        return f"<div style='font-size: 100px; text-align: center;'>Error</div>", None
     else:
-        prediction, detected_hand, best_match = handler.predict(input_image, source)
+        prediction, detected_hand = handler.predict(input_image, source)
         print("Prediction done.")
-        return f"<div style='font-size: 100px; text-align: center;'>{prediction}</div>", detected_hand, best_match
+        return f"<div style='font-size: 100px; text-align: center;'>{prediction}</div>", detected_hand
 
 iface = gr.Interface(
     fn=process_image,
@@ -34,7 +34,6 @@ iface = gr.Interface(
     outputs=[
         gr.HTML(label="Predicted Sign"),
         gr.Image(label="Detected Hand", type="numpy", width=200, height=200),
-        gr.Image(label="Best Match", type="numpy", width=200, height=200),
     ]
 )
 
