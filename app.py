@@ -22,7 +22,7 @@ def process_image(input_image):
     
     print("Processing image...")
     if source == None:
-        return f"<div style='font-size: 100px; text-align: center;'>Error</div>", None
+        return f"<div style='font-size: 50px; text-align: center;'>Please pass your image.</div>", None
     else:
         prediction, detected_hand = handler.predict(input_image, source)
         print("Prediction done.")
