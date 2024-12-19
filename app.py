@@ -30,7 +30,12 @@ def process_image(input_image):
 
 iface = gr.Interface(
     fn=process_image,
-    inputs=[gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture")],
+    inputs=[gr.Image(
+        type="filepath", 
+        sources=["upload", "webcam"], 
+        label="Upload an image or take a picture",
+        elem_id="input-image"
+    )],
     outputs=[
         gr.HTML(label="Predicted Sign"),
         gr.Image(label="Detected Hand", type="numpy", width=200, height=200),
@@ -60,7 +65,12 @@ demo = gr.Blocks(css="""
         text-align: center;
         margin-top: 2px;
     }
+    #input-image img {
+        max-height: 300px; /* Limit the height of uploaded images */
+        width: auto;      /* Keep aspect ratio */
+    }
 """)
+
 
 with demo:
     try:

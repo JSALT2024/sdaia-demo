@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+data/
 .vscode/
 flagged/
 patches/
