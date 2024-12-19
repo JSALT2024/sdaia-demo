@@ -50,7 +50,6 @@ def normalize_image(image: np.ndarray, transform: transforms.Compose):
     image = transform(image)
     return image
 
-
 def dino_predict(
         images: Union[List[np.array], np.array],
         model: nn.Module,
