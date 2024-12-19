@@ -12,7 +12,14 @@ handler = DatabaseHandler(checkpoints_pose, checkpoint_dino, db_path, data_db_pa
 handler.load_models()
 print("Models loaded.")
 
-def process_image(input_image, source):
+def process_image(input_image):
+    if input_image == None:
+        source = None
+    elif "webcam" in input_image:
+        source = "webcam"
+    else:
+        source = "upload"
+    
     print("Processing image...")
     if source == None:
         return f"<div style='font-size: 100px; text-align: center;'>Error</div>", None, None
@@ -21,18 +28,8 @@ def process_image(input_image, source):
         print("Prediction done.")
         return f"<div style='font-size: 100px; text-align: center;'>{prediction}</div>", detected_hand, best_match
 
-def process_input(input_image):
-    if input_image == None:
-        source = None
-    elif "webcam" in input_image:
-        source = "webcam"
-    else:
-        source = "upload"
-    
-    return process_image(input_image, source)
-
 iface = gr.Interface(
-    fn=process_input,
+    fn=process_image,
     inputs=[gr.Image(type="filepath", sources=["upload", "webcam"], label="Upload an image or take a picture")],
     outputs=[
         gr.HTML(label="Predicted Sign"),
